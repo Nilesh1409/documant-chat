@@ -1,0 +1,47 @@
+export const mockVersions = [
+  {
+    _id: "version-1",
+    documentId: "doc-1",
+    versionNumber: 1,
+    fileUrl: "/uploads/annual-report-2023-v1.pdf",
+    changeSummary: "Initial version",
+    createdBy: {
+      _id: "user-1",
+      email: "admin@example.com",
+      firstName: "Admin",
+      lastName: "User",
+      fullName: "Admin User",
+    },
+    createdAt: "2023-01-15T00:00:00.000Z",
+  },
+  {
+    _id: "version-2",
+    documentId: "doc-1",
+    versionNumber: 2,
+    fileUrl: "/uploads/annual-report-2023-v2.pdf",
+    changeSummary: "Updated financial figures",
+    createdBy: {
+      _id: "user-1",
+      email: "admin@example.com",
+      firstName: "Admin",
+      lastName: "User",
+      fullName: "Admin User",
+    },
+    createdAt: "2023-01-20T00:00:00.000Z",
+  },
+  {
+    _id: "version-3",
+    documentId: "doc-2",
+    versionNumber: 1,
+    fileUrl: "/uploads/project-proposal-v1.docx",
+    changeSummary: "Initial version",
+    createdBy: {
+      _id: "user-2",
+      email: "editor@example.com",
+      firstName: "Editor",
+      lastName: "User",
+      fullName: "Editor User",
+    },
+    createdAt: "2023-02-10T00:00:00.000Z",
+  },
+];
