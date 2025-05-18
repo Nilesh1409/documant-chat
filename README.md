@@ -155,6 +155,36 @@ npm test
 npm test -- --coverage
 ```
 
+## 🏗️ Backend Setup
+
+The backend API is a Node.js/Express app with JWT-based auth, document management, ingestion, and QA endpoints.
+
+### 🔧 Prerequisites
+
+- Node.js 18 or higher
+- npm or yarn
+- A running PostgreSQL (or your chosen) database
+
+### ⚙️ Installation
+
+1. **Navigate into the `backend/` directory**
+
+   ```bash
+   cd backend
+   ```
+
+PORT=8080
+
+MONGODB_URI=mongodb+srv://nileshmongodb:Nilesh7054@tardiverse.cbaln2t.mongodb.net/jktech
+JWT_SECRET=fadsDSFDs@#dasfA
+JWT_EXPIRES_IN=7d
+
+UPLOAD_DIR=./uploads
+MAX_FILE_SIZE=10485760
+
+seed initial data
+node scripts/seed.js
+
 ## 📱 Responsive Design
 
 The application is fully responsive and works seamlessly across:
@@ -199,20 +229,3 @@ The application is deployed on Render's free tier:
 ### Challenge: Responsive File Preview
 
 **Solution**: Developed a responsive file preview system that works across devices and supports multiple file formats.
-
-## 📊 Scalability Considerations
-
-- **Database Indexing**: Optimized queries for large document collections
-- **Pagination**: Implemented for large data sets
-- **Lazy Loading**: For improved performance with large document libraries
-- **Caching**: Strategic caching for frequently accessed data
-
-This project was developed as part of a coding exercise with the following requirements:
-
-- Build a document management application with Next.js/React frontend
-- Implement user authentication and role-based access control
-- Create document upload, versioning, and permission management
-- Develop an admin dashboard for user and document management
-- Build a Q&A interface for document querying
-- Ensure code modularity, testability, and maintainability
-- Focus on performance and scalability for large datasets
