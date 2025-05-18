@@ -33,7 +33,9 @@ const server = app.listen(port, () => {
         timeout: 10000,
       });
       console.log(
-        `⏱️  BACKEND Self-ping at ${new Date().toISOString()}: ${res.status}`
+        `⏱️  BACKEND Self-ping at ${new Date().toISOString()}: ${
+          backendRes.status
+        }`
       );
     } catch (err) {
       console.error("❌ Self-ping failed:", err.message);
