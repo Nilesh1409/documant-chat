@@ -1,0 +1,49 @@
+{
+  "name": "document-management-app",
+  "version": "1.0.0",
+  "description": "Document Management System with MongoDB",
+  "main": "server.js",
+  "packageManager": "pnpm@9.3.0",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js",
+    "seed": "node scripts/seed.js"
+  },
+  "keywords": [
+    "document",
+    "management",
+    "mongodb",
+    "express",
+    "node"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@huggingface/inference": "^3.13.1",
+    "@langchain/community": "^0.3.42",
+    "@langchain/openai": "^0.5.10",
+    "bcryptjs": "^2.4.3",
+    "compression": "^1.7.4",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "express-async-errors": "^3.1.1",
+    "express-rate-limit": "^7.1.5",
+    "helmet": "^7.1.0",
+    "joi": "^17.11.0",
+    "jsonwebtoken": "^9.0.2",
+    "langchain": "^0.3.25",
+    "mongoose": "^8.0.3",
+    "morgan": "^1.10.0",
+    "multer": "^1.4.5-lts.1",
+    "node-fetch": "^3.3.2",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.1",
+    "winston": "^3.11.0"
+  },
+  "devDependencies": {
+    "@faker-js/faker": "^9.8.0",
+    "faker": "^5.5.3",
+    "nodemon": "^3.0.2"
+  }
+}
