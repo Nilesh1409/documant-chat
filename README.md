@@ -130,7 +130,7 @@ yarn install
 
 ```
 # Create a .env.local file with the following variables
-NEXT_PUBLIC_API_URL=https://document-management-system-latest.onrender.com/api/health
+NEXT_PUBLIC_API_URL=https://document-management-system-latest.onrender.com
 ```
 
 4. Run the development server
