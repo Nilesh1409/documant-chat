@@ -175,7 +175,7 @@ The backend API is a Node.js/Express app with JWT-based auth, document managemen
 
 PORT=8080
 
-MONGODB_URI=mongodb+srv://nileshmongodb:Nilesh7054@tardiverse.cbaln2t.mongodb.net/jktech
+MONGODB_URI=mongodb+srv://password:Nilesh7054@test.cbaln2t.mongodb.net/jktech
 JWT_SECRET=fadsDSFDs@#dasfA
 JWT_EXPIRES_IN=7d
 
