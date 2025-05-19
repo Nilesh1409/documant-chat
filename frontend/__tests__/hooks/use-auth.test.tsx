@@ -1,110 +1,230 @@
-"use client"
+import { renderHook, act } from "@testing-library/react";
+import { useAuth } from "@/hooks/use-auth";
+import { AuthProvider } from "@/providers/auth-provider";
+import { authService } from "@/services/auth-service";
 
-import { renderHook, act } from "@testing-library/react"
-import { useAuth } from "@/hooks/use-auth"
-import { AuthContext } from "@/providers/auth-provider"
-import type { ReactNode } from "react"
-import jest from "jest" // Import jest to declare the variable
-
-// Mock AuthContext values
-const mockAuthContext = {
-  user: {
-    _id: "test-user-id",
-    email: "test@example.com",
-    firstName: "Test",
-    lastName: "User",
-    role: "admin",
-    fullName: "Test User",
+// Mock auth service
+jest.mock("@/services/auth-service", () => ({
+  authService: {
+    login: jest.fn(),
+    register: jest.fn(),
+    getCurrentUser: jest.fn(),
+    logout: jest.fn(),
   },
-  login: jest.fn(),
-  logout: jest.fn(),
-  register: jest.fn(),
-  updateProfile: jest.fn(),
-  isLoading: false,
-  error: null,
-}
+}));
 
-// Wrapper component with mocked AuthContext
-const wrapper = ({ children }: { children: ReactNode }) => (
-  <AuthContext.Provider value={mockAuthContext}>{children}</AuthContext.Provider>
-)
-
-describe("useAuth hook", () => {
+describe("useAuth Hook", () => {
   beforeEach(() => {
-    jest.clearAllMocks()
-  })
+    jest.clearAllMocks();
+  });
 
-  it("should return auth context values", () => {
-    const { result } = renderHook(() => useAuth(), { wrapper })
+  const wrapper = ({ children }: { children: React.ReactNode }) => (
+    <AuthProvider>{children}</AuthProvider>
+  );
 
-    expect(result.current).toEqual(mockAuthContext)
-    expect(result.current.user).toEqual(mockAuthContext.user)
-    expect(typeof result.current.login).toBe("function")
-    expect(typeof result.current.logout).toBe("function")
-    expect(typeof result.current.register).toBe("function")
-    expect(typeof result.current.updateProfile).toBe("function")
-  })
+  test("provides initial auth state", async () => {
+    (authService.getCurrentUser as jest.Mock).mockResolvedValue(null);
 
-  it("should call login function with correct parameters", () => {
-    const { result } = renderHook(() => useAuth(), { wrapper })
+    const { result } = renderHook(() => useAuth(), { wrapper });
 
-    act(() => {
-      result.current.login("test@example.com", "password123")
-    })
+    // Initial state should have loading true
+    expect(result.current.isLoading).toBe(true);
+    expect(result.current.user).toBeNull();
 
-    expect(mockAuthContext.login).toHaveBeenCalledWith("test@example.com", "password123")
-  })
+    // Wait for getCurrentUser to resolve
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 0));
+    });
 
-  it("should call logout function", () => {
-    const { result } = renderHook(() => useAuth(), { wrapper })
+    // After loading, state should be updated
+    expect(result.current.isLoading).toBe(false);
+    expect(result.current.user).toBeNull();
+  });
 
-    act(() => {
-      result.current.logout()
-    })
+  test("loads user on mount if token exists", async () => {
+    const mockUser = {
+      _id: "user-1",
+      email: "test@example.com",
+      role: "viewer",
+    };
 
-    expect(mockAuthContext.logout).toHaveBeenCalled()
-  })
+    (authService.getCurrentUser as jest.Mock).mockResolvedValue(mockUser);
 
-  it("should call register function with correct parameters", () => {
-    const { result } = renderHook(() => useAuth(), { wrapper })
-    const userData = {
+    const { result } = renderHook(() => useAuth(), { wrapper });
+
+    // Initial state should have loading true
+    expect(result.current.isLoading).toBe(true);
+
+    // Wait for getCurrentUser to resolve
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 0));
+    });
+
+    // After loading, state should be updated with user
+    expect(result.current.isLoading).toBe(false);
+    expect(result.current.user).toEqual(mockUser);
+  });
+
+  test("login updates auth state with user", async () => {
+    const mockUser = {
+      _id: "user-1",
+      email: "test@example.com",
+      role: "viewer",
+    };
+
+    (authService.getCurrentUser as jest.Mock).mockResolvedValue(null);
+    (authService.login as jest.Mock).mockResolvedValue({
+      user: mockUser,
+      token: "mock-token",
+    });
+
+    const { result } = renderHook(() => useAuth(), { wrapper });
+
+    // Wait for initial getCurrentUser to resolve
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 0));
+    });
+
+    // Initial state should have no user
+    expect(result.current.user).toBeNull();
+
+    // Call login
+    await act(async () => {
+      await result.current.login("test@example.com", "password123");
+    });
+
+    // Auth state should be updated with user
+    expect(result.current.user).toEqual(mockUser);
+    expect(authService.login).toHaveBeenCalledWith(
+      "test@example.com",
+      "password123"
+    );
+  });
+
+  test("register updates auth state with user", async () => {
+    const mockUser = {
+      _id: "user-1",
+      email: "new@example.com",
+      firstName: "New",
+      lastName: "User",
+      role: "viewer",
+    };
+
+    (authService.getCurrentUser as jest.Mock).mockResolvedValue(null);
+    (authService.register as jest.Mock).mockResolvedValue({
+      user: mockUser,
+      token: "mock-token",
+    });
+
+    const { result } = renderHook(() => useAuth(), { wrapper });
+
+    // Wait for initial getCurrentUser to resolve
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 0));
+    });
+
+    // Initial state should have no user
+    expect(result.current.user).toBeNull();
+
+    // Call register
+    await act(async () => {
+      await result.current.register({
+        email: "new@example.com",
+        password: "password123",
+        firstName: "New",
+        lastName: "User",
+      });
+    });
+
+    // Auth state should be updated with user
+    expect(result.current.user).toEqual(mockUser);
+    expect(authService.register).toHaveBeenCalledWith({
       email: "new@example.com",
       password: "password123",
       firstName: "New",
       lastName: "User",
-    }
+    });
+  });
 
+  test("logout clears auth state", async () => {
+    const mockUser = {
+      _id: "user-1",
+      email: "test@example.com",
+      role: "viewer",
+    };
+
+    (authService.getCurrentUser as jest.Mock).mockResolvedValue(mockUser);
+
+    const { result } = renderHook(() => useAuth(), { wrapper });
+
+    // Wait for getCurrentUser to resolve
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 0));
+    });
+
+    // Initial state should have user
+    expect(result.current.user).toEqual(mockUser);
+
+    // Call logout
     act(() => {
-      result.current.register(userData)
-    })
+      result.current.logout();
+    });
 
-    expect(mockAuthContext.register).toHaveBeenCalledWith(userData)
-  })
+    // Auth state should be cleared
+    expect(result.current.user).toBeNull();
+    expect(authService.logout).toHaveBeenCalled();
+  });
 
-  it("should call updateProfile function with correct parameters", () => {
-    const { result } = renderHook(() => useAuth(), { wrapper })
-    const profileData = {
-      firstName: "Updated",
-      lastName: "User",
-    }
+  test("handles login errors", async () => {
+    (authService.getCurrentUser as jest.Mock).mockResolvedValue(null);
+    (authService.login as jest.Mock).mockRejectedValue(
+      new Error("Invalid credentials")
+    );
 
-    act(() => {
-      result.current.updateProfile(profileData)
-    })
+    const { result } = renderHook(() => useAuth(), { wrapper });
 
-    expect(mockAuthContext.updateProfile).toHaveBeenCalledWith(profileData)
-  })
+    // Wait for initial getCurrentUser to resolve
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 0));
+    });
 
-  it("should throw error when used outside AuthProvider", () => {
-    // Spy on console.error to suppress the expected error in test output
-    jest.spyOn(console, "error").mockImplementation(() => {})
+    // Call login and expect it to throw
+    await expect(
+      act(async () => {
+        await result.current.login("test@example.com", "wrong-password");
+      })
+    ).rejects.toThrow("Invalid credentials");
 
-    // Using renderHook without the wrapper should throw an error
-    expect(() => {
-      renderHook(() => useAuth())
-    }).toThrow("useAuth must be used within an AuthProvider")
+    // Auth state should still have no user
+    expect(result.current.user).toBeNull();
+  });
 
-    // Restore console.error
-    jest.restoreAllMocks()
-  })
-})
+  test("handles register errors", async () => {
+    (authService.getCurrentUser as jest.Mock).mockResolvedValue(null);
+    (authService.register as jest.Mock).mockRejectedValue(
+      new Error("User already exists")
+    );
+
+    const { result } = renderHook(() => useAuth(), { wrapper });
+
+    // Wait for initial getCurrentUser to resolve
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 0));
+    });
+
+    // Call register and expect it to throw
+    await expect(
+      act(async () => {
+        await result.current.register({
+          email: "existing@example.com",
+          password: "password123",
+          firstName: "Existing",
+          lastName: "User",
+        });
+      })
+    ).rejects.toThrow("User already exists");
+
+    // Auth state should still have no user
+    expect(result.current.user).toBeNull();
+  });
+});

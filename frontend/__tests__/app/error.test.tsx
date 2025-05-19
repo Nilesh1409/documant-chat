@@ -1,6 +1,6 @@
 import { jest } from "@jest/globals";
 import { render, screen, fireEvent } from "@testing-library/react";
-import Error from "@/app/error";
+import ErrorPage from "@/app/error";
 import { useRouter } from "next/navigation";
 
 // Mock the useRouter hook
@@ -29,7 +29,7 @@ describe("Error Component", () => {
   });
 
   it("renders the error component correctly", () => {
-    render(<Error error={mockError} reset={mockReset} />);
+    render(<ErrorPage error={mockError} reset={mockReset} />);
 
     // Check that the error icon is displayed
     expect(screen.getByTestId("error-icon")).toBeInTheDocument();
