@@ -1,7 +1,6 @@
 "use client";
 
 import type React from "react";
-
 import { useState, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -19,11 +18,11 @@ import {
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
+  FormDescription,
 } from "@/components/ui/form";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/components/ui/use-toast";
@@ -102,15 +101,11 @@ export default function DocumentVersionUpload({
         description: "Your document version has been uploaded successfully.",
       });
 
-      // Reset form
       form.reset();
       setSelectedFile(null);
       setIsOpen(false);
 
-      // Refresh document
-      if (onSuccess) {
-        onSuccess();
-      }
+      onSuccess?.();
     } catch (error: any) {
       console.error("Upload error:", error);
       toast({
@@ -134,7 +129,6 @@ export default function DocumentVersionUpload({
   const handleFileDrop = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     e.stopPropagation();
-
     const file = e.dataTransfer.files?.[0];
     if (file) {
       setSelectedFile(file);
@@ -150,20 +144,18 @@ export default function DocumentVersionUpload({
   const removeFile = () => {
     setSelectedFile(null);
     form.setValue("file", undefined as any);
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
-    }
+    if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         <Button>
-          <Upload className="mr-2 h-4 w-4" />
-          Upload New Version
+          <Upload className="mr-2 h-4 w-4" /> Upload New Version
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[550px]">
+      {/* Force-mount the content so the file input is always in the DOM */}
+      <DialogContent forceMount className="sm:max-w-[550px]">
         <DialogHeader>
           <DialogTitle>Upload New Version</DialogTitle>
           <DialogDescription>
@@ -178,7 +170,7 @@ export default function DocumentVersionUpload({
               name="file"
               render={({ field: { onChange, ref, ...fieldProps } }) => (
                 <FormItem>
-                  <FormLabel>File</FormLabel>
+                  <FormLabel htmlFor="file-upload">File</FormLabel>
                   <FormControl>
                     <div
                       className={`border-2 border-dashed rounded-lg p-6 text-center cursor-pointer ${
@@ -233,19 +225,26 @@ export default function DocumentVersionUpload({
                       )}
                       <input
                         id="file-upload"
+                        aria-label="File"
                         type="file"
                         accept={ACCEPTED_FILE_TYPES.join(",")}
-                        className="sr-only" /* using sr-only instead of hidden is safer */
-                        {...fieldProps} /* name, disabled, etc. */
+                        style={{
+                          position: "absolute",
+                          top: 0,
+                          left: 0,
+                          width: "100%",
+                          height: "100%",
+                          opacity: 0,
+                          cursor: "pointer",
+                        }}
+                        {...fieldProps}
                         onChange={(e) => {
-                          /* 1️⃣ keep RHF happy, 2️⃣ keep your state */
-                          handleFileChange(e); // your logic
-                          onChange(e); // RHF’s own handler
+                          handleFileChange(e);
+                          onChange(e);
                         }}
                         ref={(el) => {
-                          /* merge the two refs */
-                          fileInputRef.current = el as HTMLInputElement | null;
-                          ref(el); // pass DOM node back to RHF
+                          fileInputRef.current = el;
+                          ref(el);
                         }}
                       />
                     </div>

@@ -11,6 +11,17 @@ afterEach(() => server.resetHandlers());
 
 afterAll(() => server.close());
 
+const axiosMock = {
+  create: jest.fn(() => axiosMock),
+  get: jest.fn(),
+  post: jest.fn(),
+  put: jest.fn(),
+  // interceptors no-ops so axios.create().interceptors.request.use(...) won’t break
+  interceptors: { request: { use: jest.fn() }, response: { use: jest.fn() } },
+};
+jest.mock("axios", () => axiosMock);
+global.axiosMock = axiosMock;
+
 // Mock next/navigation
 jest.mock("next/navigation", () => ({
   useRouter: () => ({

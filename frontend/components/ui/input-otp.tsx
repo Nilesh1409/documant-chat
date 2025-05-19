@@ -1,12 +1,42 @@
+// components/ui/input-otp.tsx
 "use client";
 
 import * as React from "react";
-import { OTPInput, OTPInputContext } from "@/components/ui/input-otp";
 import { Dot } from "lucide-react";
-
 import { cn } from "@/lib/utils";
 
-const InputOTP = React.forwardRef<
+/**
+ * 1) Context for sharing slot state
+ */
+export const OTPInputContext = React.createContext<{
+  slots: { char: string; hasFakeCaret: boolean; isActive: boolean }[];
+}>({ slots: [] });
+
+/**
+ * 2) Base OTPInput component:
+ *    - Renders a div wrapper with containerClassName
+ *    - Renders an <input> with className
+ *    - Provides a default empty slots array
+ */
+export type OTPInputProps = React.ComponentPropsWithoutRef<"input"> & {
+  containerClassName?: string;
+  className?: string;
+};
+export const OTPInput = React.forwardRef<HTMLInputElement, OTPInputProps>(
+  ({ containerClassName, className, ...props }, ref) => (
+    <OTPInputContext.Provider value={{ slots: [] }}>
+      <div ref={ref as any} className={containerClassName}>
+        <input ref={ref} className={className} {...props} />
+      </div>
+    </OTPInputContext.Provider>
+  )
+);
+OTPInput.displayName = "OTPInput";
+
+/**
+ * 3) InputOTP – your styled wrapper around OTPInput
+ */
+export const InputOTP = React.forwardRef<
   React.ElementRef<typeof OTPInput>,
   React.ComponentPropsWithoutRef<typeof OTPInput>
 >(({ className, containerClassName, ...props }, ref) => (
@@ -22,7 +52,10 @@ const InputOTP = React.forwardRef<
 ));
 InputOTP.displayName = "InputOTP";
 
-const InputOTPGroup = React.forwardRef<
+/**
+ * 4) InputOTPGroup – container for multiple slots/separators
+ */
+export const InputOTPGroup = React.forwardRef<
   React.ElementRef<"div">,
   React.ComponentPropsWithoutRef<"div">
 >(({ className, ...props }, ref) => (
@@ -30,12 +63,19 @@ const InputOTPGroup = React.forwardRef<
 ));
 InputOTPGroup.displayName = "InputOTPGroup";
 
-const InputOTPSlot = React.forwardRef<
+/**
+ * 5) InputOTPSlot – renders a single slot from context.slots
+ */
+export const InputOTPSlot = React.forwardRef<
   React.ElementRef<"div">,
   React.ComponentPropsWithoutRef<"div"> & { index: number }
 >(({ index, className, ...props }, ref) => {
-  const inputOTPContext = React.useContext(OTPInputContext);
-  const { char, hasFakeCaret, isActive } = inputOTPContext.slots[index];
+  const { slots } = React.useContext(OTPInputContext);
+  const { char, hasFakeCaret, isActive } = slots[index] || {
+    char: "",
+    hasFakeCaret: false,
+    isActive: false,
+  };
 
   return (
     <div
@@ -58,7 +98,10 @@ const InputOTPSlot = React.forwardRef<
 });
 InputOTPSlot.displayName = "InputOTPSlot";
 
-const InputOTPSeparator = React.forwardRef<
+/**
+ * 6) InputOTPSeparator – renders the Dot icon as a separator
+ */
+export const InputOTPSeparator = React.forwardRef<
   React.ElementRef<"div">,
   React.ComponentPropsWithoutRef<"div">
 >(({ ...props }, ref) => (
@@ -67,5 +110,3 @@ const InputOTPSeparator = React.forwardRef<
   </div>
 ));
 InputOTPSeparator.displayName = "InputOTPSeparator";
-
-export { InputOTP, InputOTPGroup, InputOTPSlot, InputOTPSeparator };
